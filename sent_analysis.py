@@ -152,7 +152,7 @@ print("total time taken Linear SVM: {} min".format((end - start) / 60))
 print("=== KNN ===")
 start = time.process_time()
 
-KN_classifier = KNeighborsClassifier(n_neighbors=5, p=1, weights='distance')
+KN_classifier = KNeighborsClassifier(n_neighbors=5, p=1, weights='uniform')
 KN_classifier.fit(X_train, y_train)
 
 print(KN_classifier.predict(X_test[[332]]))
