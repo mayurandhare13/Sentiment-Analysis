@@ -256,6 +256,7 @@ test_acc = (svm_linear_test_score, RF_test_score, svm_test_score, NB_test_score,
 train_acc = [i * 100 for i in train_acc]
 test_acc = [i * 100 for i in test_acc]
 
+
 ind = np.arange(N)    # the x locations for the groups
 width = 0.35       # the width of the bars: can also be len(x) sequence
 
@@ -265,8 +266,10 @@ p2 = plt.bar(ind, test_acc, width,
 
 plt.ylabel('Scores')
 plt.title('Scores by algorithms and train_test')
-plt.xticks(ind, ('Linear SVM','Random Forest', 'Crammer-Singer SVM', 'Multinomial NB', 'KNN', 'Logistic Regression', 'Grid Search KNN'))
+plt.xticks(ind, ('Linear SVM','Random Forest', 'Poly SVM', 'Multinomial NB', 'KNN', 'Logistic Regression', 'Grid Search KNN'), rotation = 'vertical')
 plt.yticks(np.arange(0, 200, 10))
+plt.margins(0.2)
 plt.legend((p1[0], p2[0]), ('train acc', 'test acc'))
+plt.subplots_adjust(bottom=0.15)
 plt.savefig('algo_train_test_acc_final.png')
 plt.close()
