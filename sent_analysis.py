@@ -20,6 +20,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import Perceptron
 
 
 #Read Dataset
@@ -204,21 +205,21 @@ print(RF_train_score)
 end = time.process_time()
 print("total time taken Random Forest Search: {} min".format((end - start) / 60))
 
-# SVM
-print("=== Poly Kernel SVM ===")
+# Perceptron
+print("=== Perceptron===")
 start = time.process_time()
-svm_clf = SVC(C = 10, kernel='poly', verbose=True)
-svm_clf.fit(X_train, y_train)
+per_clf = Perceptron(penalty='l1', verbose=1)
+per_clf.fit(X_train, y_train)
 
-print(svm_clf.predict(X_test[[332]]))
+print(per_clf.predict(X_test[[332]]))
 print(y_test[332])
 
-svm_test_score = svm_clf.score(X_test, y_test)
-print(svm_test_score)
+per_test_score = per_clf.score(X_test, y_test)
+print(per_test_score)
 
 
-svm_train_score = svm.score(X_train, y_train)
-print(svm_train_score)
+per_train_score = per_clf.score(X_train, y_train)
+print(per_train_score)
 
 end = time.process_time()
 print("total time taken for Multi SVM: {} min".format((end - start) / 60))
@@ -228,8 +229,8 @@ import matplotlib.pyplot as plt
 
 N = 6
 
-train_acc = [RF_train_score, svm_linear_train_score,svm_train_score, NB_train_score, DT_train_score, LR_train_score]
-test_acc = [RF_test_score, svm_linear_train_score,svm_test_score, NB_test_score, DT_test_score, LR_test_score]
+train_acc = [RF_train_score, svm_linear_train_score,per_train_score, NB_train_score, DT_train_score, LR_train_score]
+test_acc = [RF_test_score, svm_linear_train_score,per_test_score, NB_test_score, DT_test_score, LR_test_score]
 
 train_acc = [i * 100 for i in train_acc]
 test_acc = [i * 100 for i in test_acc]
@@ -242,7 +243,7 @@ p2 = plt.bar(ind, test_acc, width,
 
 plt.ylabel('Scores')
 plt.title('Scores by algorithms and train_test')
-plt.xticks(ind, ('Random Forest', 'Linear SVM','SVM', 'Naive Bayes', 'Decision Tree', 'Logistic Regression'), rotation='vertical')
+plt.xticks(ind, ('Random Forest', 'Linear SVM','Perceptron', 'Naive Bayes', 'Decision Tree', 'Logistic Regression'), rotation='vertical')
 plt.yticks(np.arange(0, 200, 10))
 plt.margins(0.2)
 plt.legend((p1[0], p2[0]), ('train acc', 'test acc'))
