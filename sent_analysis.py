@@ -118,7 +118,6 @@ X_test = X_test.todense()
 y_train = y_train.astype('int')
 y_test = y_test.astype('int')
 
-
 print(X_train.shape)
 #Algorithms
 # Logistic Regression
@@ -238,12 +237,11 @@ ind = np.arange(N)    # the x locations for the groups
 width = 0.25       # the width of the bars: can also be len(x) sequence
 
 p1 = plt.bar(ind, train_acc, width)
-p2 = plt.bar(ind, test_acc, width,
-             bottom=train_acc)
+p2 = plt.bar(ind, test_acc, width, bottom=train_acc)
 
 plt.ylabel('Scores')
 plt.title('Scores by algorithms and train_test')
-plt.xticks(ind, ('Random Forest', 'Linear SVM','Perceptron', 'Naive Bayes', 'Decision Tree', 'Logistic Regression'), rotation='vertical')
+plt.xticks(ind, ('Random Forest', 'Linear SVM', 'Perceptron', 'Naive Bayes', 'Decision Tree', 'Logistic Regression'), rotation=45)
 plt.yticks(np.arange(0, 200, 10))
 plt.margins(0.2)
 plt.legend((p1[0], p2[0]), ('train acc', 'test acc'))
@@ -251,7 +249,83 @@ plt.subplots_adjust(bottom=0.15)
 plt.savefig('algo_train_test_acc.png')
 plt.close()
 
-'''
+
+print("------CNN-------")
+# Keras CNN Model
+
+model1=  Sequential()
+model1.add(Dense(1000,input_shape=(8915,),activation='relu'))
+model1.add(Dense(1,activation='sigmoid'))
+
+model1.compile(optimizer='adam',
+              loss='binary_crossentropy',
+              metrics=['accuracy'])
+
+hist = model1.fit(X_train,y_train,epochs=6,batch_size=128,verbose=1)
+
+print(model1.evaluate(X_train, y_train, batch_size=128))
+print(model1.evaluate(X_test, y_test, batch_size=128))
+
+
+model2=  Sequential()
+model2.add(Dense(1000,input_shape=(8915,),activation='relu'))
+model2.add(Dense(500,activation='relu'))
+model2.add(Dense(1,activation='sigmoid'))
+
+model2.compile(optimizer='adam',
+              loss='binary_crossentropy',
+              metrics=['accuracy'])
+
+hist2 = model2.fit(X_train,y_train,epochs=6,batch_size=128,verbose=1)
+
+model3=  Sequential()
+model3.add(Dense(2000,input_shape=(8915,),activation='relu'))
+model3.add(Dense(1000,activation='relu'))
+model3.add(Dense(500,activation='relu'))
+model3.add(Dense(1,activation='sigmoid'))
+
+model3.compile(optimizer='adam',
+              loss='binary_crossentropy',
+              metrics=['accuracy'])
+hist3 = model3.fit(X_train,y_train,epochs=6,batch_size=128,verbose=1)
+
+print(model2.evaluate(X_test, y_test, batch_size=128))
+print(model3.evaluate(X_test, y_test, batch_size=128))
+
+print("------E-------")
+loss_curve = hist.history['loss']
+epoch_c = list(range(len(loss_curve)))
+loss_curve2 = hist2.history['loss']
+epoch_c = list(range(len(loss_curve)))
+loss_curve3 = hist3.history['loss']
+epoch_c = list(range(len(loss_curve)))
+plt.xlabel('Epochs')
+plt.ylabel('Loss value')
+plt.plot(epoch_c,loss_curve, color='red', marker='o',label='1 Hidden layer')
+plt.plot(epoch_c,loss_curve2, color='green', marker='o',label='2 Hidden layers')
+plt.plot(epoch_c,loss_curve3, color='blue',marker='o',label='3 Hidden layers')
+plt.legend()
+plt.savefig('loss_cnn.png')
+plt.show()
+plt.close()
+
+acc_curve = hist.history['acc']
+epoch_c = list(range(len(loss_curve)))
+acc_curve2 = hist2.history['acc']
+epoch_c = list(range(len(loss_curve)))
+acc_curve3 = hist3.history['acc']
+epoch_c = list(range(len(loss_curve)))
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy value')
+plt.plot(epoch_c,acc_curve, color='red', marker='o',label='1 Hidden layer')
+plt.plot(epoch_c,acc_curve2, color='green', marker='o', label='2 Hidden layers')
+plt.plot(epoch_c,acc_curve3, color='blue', marker='o', label='3 Hidden layers')
+plt.legend()
+plt.savefig('accuracies_cnn.png')
+plt.show()
+plt.close()
+
+
 #Grid Search
 print("=== Grid Search ===")
 start = time.process_time()
@@ -293,4 +367,3 @@ plt.legend((p1[0], p2[0]), ('train acc', 'test acc'))
 plt.subplots_adjust(bottom=0.15)
 plt.savefig('algo_train_test_acc_final.png')
 plt.close()
-'''
