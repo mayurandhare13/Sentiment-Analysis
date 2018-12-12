@@ -17,16 +17,22 @@ from sklearn.svm import SVC
 import time
 from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 
-print("------A-------")
+
+#Read Dataset
 print(os.listdir("amazonreviews"))
 
 trainfile = bz2.BZ2File('amazonreviews/train.ft.txt.bz2','r')
 lines = trainfile.readlines()
 
 print(lines[1])
+
+'''
+Split dataset into Labels and Text
+'''
 
 docSentimentList=[]
 def getDocumentSentimentList(docs,splitStr='__label__'):
@@ -43,22 +49,32 @@ def getDocumentSentimentList(docs,splitStr='__label__'):
     print('Done!!')
     return docSentimentList
 
+
 docSentimentList=getDocumentSentimentList(lines[:1000000],splitStr='__label__')
 
 train_df = pd.DataFrame(docSentimentList,columns=['Text','Sentiment'])
 print(train_df.head())
 
 print("------B-------")
-#Text Preprocessing
+'''
+Text Preprocessing
+1) Replacing labels `1` to `0` and `2` to `1`
+2) Make all text to lowercase so that it will count as single word at tokenization.
+3) Remove punctuations
+4) Remove stop words
+all above will halp in feature extraction. so that we will have less features for training.
+'''
 train_df['Sentiment'][train_df['Sentiment']=='1'] = 0
 train_df['Sentiment'][train_df['Sentiment']=='2'] = 1
 
 print(train_df['Sentiment'].value_counts())
 
+#lowercasing
 train_df['word_count'] = train_df['Text'].str.lower().str.split().apply(len)
 print(train_df.head())
 
 
+#remove punctuations
 def remove_punc(s):
     table = str.maketrans({key: None for key in string.punctuation})
     return s.translate(table)
@@ -77,9 +93,11 @@ print(train_df1['Sentiment'].value_counts())
 #saving
 train_df1.to_csv("train_df1.csv", sep=',', encoding='utf-8')
 
+train_df1 = pd.read_csv("train_df1.csv", sep=',', encoding='utf-8')
 print("------C-------")
 #CountVectorized Representation
 
+#remove stop words
 st_wd = text.ENGLISH_STOP_WORDS
 c_vector = CountVectorizer(stop_words = st_wd,min_df=.0001,lowercase=1)
 X_counts = c_vector.fit_transform(train_df1['Text'].values)
@@ -88,6 +106,8 @@ print(X_counts)
 
 y = train_df1['Sentiment'].values
 
+
+#train and test spliting for checking accuracies
 X_train, X_test, y_train, y_test = train_test_split(X_counts, y, test_size=0.1, random_state=139)
 
 
@@ -99,7 +119,7 @@ y_test = y_test.astype('int')
 
 
 print(X_train.shape)
-
+#Algorithms
 # Logistic Regression
 print("=== Logistic Regression ===")
 start = time.process_time()
@@ -148,19 +168,19 @@ print(y_test[332])
 end = time.process_time()
 print("total time taken Linear SVM: {} min".format((end - start) / 60))
 
-# KNN
-print("=== KNN ===")
+# Decision Tree
+print("=== Decision Tree ===")
 start = time.process_time()
 
-KN_classifier = KNeighborsClassifier(n_neighbors=5, p=1, weights='uniform')
-KN_classifier.fit(X_train, y_train)
+DT_classifier = DecisionTreeClassifier(criterion='entropy', max_depth=10, splitter='best')
+DT_classifier.fit(X_train, y_train)
 
-print(KN_classifier.predict(X_test[[332]]))
+print(DT_classifier.predict(X_test[[332]]))
 
-KN_test_score = KN_classifier.score(X_test, y_test)
-print(KN_test_score)
-KN_train_score = KN_classifier.score(X_train, y_train)
-print(KN_train_score)
+DT_test_score = DT_classifier.score(X_test, y_test)
+print(DT_test_score)
+DT_train_score = DT_classifier.score(X_train, y_train)
+print(DT_train_score)
 end = time.process_time()
 print("total time taken KNN Search: {} min".format((end - start) / 60))
 
@@ -208,8 +228,8 @@ import matplotlib.pyplot as plt
 
 N = 6
 
-train_acc = [RF_train_score, svm_linear_train_score,svm_train_score, NB_train_score, KN_train_score, LR_train_score]
-test_acc = [RF_test_score, svm_linear_train_score,svm_test_score, NB_test_score, KN_test_score, LR_test_score]
+train_acc = [RF_train_score, svm_linear_train_score,svm_train_score, NB_train_score, DT_train_score, LR_train_score]
+test_acc = [RF_test_score, svm_linear_train_score,svm_test_score, NB_test_score, DT_test_score, LR_test_score]
 
 train_acc = [i * 100 for i in train_acc]
 test_acc = [i * 100 for i in test_acc]
@@ -222,7 +242,7 @@ p2 = plt.bar(ind, test_acc, width,
 
 plt.ylabel('Scores')
 plt.title('Scores by algorithms and train_test')
-plt.xticks(ind, ('Random Forest', 'Linear SVM','SVM', 'Naive Bayes', 'KNN', 'Logistic Regression'), rotation='vertical')
+plt.xticks(ind, ('Random Forest', 'Linear SVM','SVM', 'Naive Bayes', 'Decision Tree', 'Logistic Regression'), rotation='vertical')
 plt.yticks(np.arange(0, 200, 10))
 plt.margins(0.2)
 plt.legend((p1[0], p2[0]), ('train acc', 'test acc'))
@@ -230,7 +250,7 @@ plt.subplots_adjust(bottom=0.15)
 plt.savefig('algo_train_test_acc.png')
 plt.close()
 
-
+'''
 #Grid Search
 print("=== Grid Search ===")
 start = time.process_time()
@@ -256,7 +276,6 @@ test_acc = (svm_linear_test_score, RF_test_score, svm_test_score, NB_test_score,
 train_acc = [i * 100 for i in train_acc]
 test_acc = [i * 100 for i in test_acc]
 
-
 ind = np.arange(N)    # the x locations for the groups
 width = 0.35       # the width of the bars: can also be len(x) sequence
 
@@ -273,3 +292,4 @@ plt.legend((p1[0], p2[0]), ('train acc', 'test acc'))
 plt.subplots_adjust(bottom=0.15)
 plt.savefig('algo_train_test_acc_final.png')
 plt.close()
+'''
