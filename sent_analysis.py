@@ -94,22 +94,21 @@ print(train_df1['Sentiment'].value_counts())
 #saving
 train_df1.to_csv("train_df1.csv", sep=',', encoding='utf-8')
 
-train_df1 = pd.read_csv("train_df1.csv", sep=',', encoding='utf-8')
+#train_df1 = pd.read_csv("train_df1.csv", sep=',', encoding='utf-8')
 print("------C-------")
-#CountVectorized Representation
 
-#remove stop words
+#remove stop words CountVectorized Representation
 st_wd = text.ENGLISH_STOP_WORDS
 c_vector = CountVectorizer(stop_words = st_wd,min_df=.0001,lowercase=1)
 X_counts = c_vector.fit_transform(train_df1['Text'].values)
-# this return DTM
+# X_counts is Document Term Matrix(DTM)
 print(X_counts)
 
 y = train_df1['Sentiment'].values
 
 
 #train and test spliting for checking accuracies
-X_train, X_test, y_train, y_test = train_test_split(X_counts, y, test_size=0.1, random_state=139)
+X_train, X_test, y_train, y_test = train_test_split(X_counts, y, test_size=0.2, random_state=139)
 
 
 X_train = X_train.todense()
@@ -119,7 +118,8 @@ y_train = y_train.astype('int')
 y_test = y_test.astype('int')
 
 print(X_train.shape)
-#Algorithms
+# Algorithms
+
 # Logistic Regression
 print("=== Logistic Regression ===")
 start = time.process_time()
@@ -182,7 +182,7 @@ print(DT_test_score)
 DT_train_score = DT_classifier.score(X_train, y_train)
 print(DT_train_score)
 end = time.process_time()
-print("total time taken KNN Search: {} min".format((end - start) / 60))
+print("total time taken Decision Tree: {} min".format((end - start) / 60))
 
 
 # Random Forest
@@ -221,7 +221,7 @@ per_train_score = per_clf.score(X_train, y_train)
 print(per_train_score)
 
 end = time.process_time()
-print("total time taken for Multi SVM: {} min".format((end - start) / 60))
+print("total time taken for Perceptron: {} min".format((end - start) / 60))
 
 # visualization
 import matplotlib.pyplot as plt
